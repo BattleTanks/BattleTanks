@@ -4,172 +4,167 @@
  * ただの三角形を表示するだけですが...
  * 一応自分のブラウザがWebGLに対応しているかの確認にしようしてください.
  */
- 
-// グローバル変数
-var GL;     // glオブジェクト
-var OBJ;    // 3Dオブジェクト
+
+// Graphicsクラス
+var Graphics = (function() {
+ var GL = null;
+	
+	/*
+	 * シェーダをHTML要素のidより取得
+	 *
+	 * 戻り値 : シェーダオブジェクト
+	 */
+	function getShader(id)
+	{
+		var source = document.getElementById(id);
+		if(!source){ return null; }
+		
+		var str = "";
+		var k = source.firstChild;
+		while(k){
+			if(k.nodeType == 3){
+				str += k.textContent;
+			}
+			k = k.nextSibling;
+		}
+		
+		// 内部関数 : シェーダの種類を選別
+		function shaderType(){
+			switch (source.type) {
+				case "x-shader/x-fragment":
+					return GL.FRAGMENT_SHADER;
+				case "x-shader/x-vertex":
+					return GL.VERTEX_SHADER;
+				default:
+					return null;
+			}
+		}
+		
+		// シェーダを生成
+		var shader = GL.createShader(shaderType());
+	
+		// シェーダをコンパイル
+		GL.shaderSource(shader, str);
+		GL.compileShader(shader);
+		
+		// コンパイルの成功/失敗を確認
+	  	if(!GL.getShaderParameter(shader, GL.COMPILE_STATUS)){
+	  		alert(GL.getShaderInfoLog(shader));
+	  		return null;
+		}
+	
+		return shader;
+	}
+	
+	/*
+	 * シェーダの初期化関数
+	 */
+	function initShaders()
+	{
+		// シェーダオブジェクトの生成
+		var vertexShader = getShader("shader-vertex");
+		var fragmentShader = getShader("shader-fragment");
+	
+		// プログラムオブジェクトにシェーダをまとめる
+		var program = GL.createProgram();
+		GL.attachShader(program, vertexShader);
+		GL.attachShader(program, fragmentShader);
+		GL.linkProgram(program);
+	
+		// プログラムオブジェクトの成功/失敗を確認
+		if(GL.getProgramParameter(program, GL.LINK_STATUS)){
+			GL.useProgram(program);
+		}
+		else{
+			alert(GL.getProgramInfoLog(program));
+		}
+		
+		// 頂点データをプログラムオブジェクトに付与
+		var attLocation = GL.getAttribLocation(program, 'position');
+		GL.enableVertexAttribArray(attLocation);
+		GL.vertexAttribPointer(attLocation, 3, GL.FLOAT, false, 0, 0);
+	}
+	
+	/*
+	 * バッファの初期化関数
+	 */
+	function initBuffers(obj)
+	{
+		// 頂点バッファの作成
+		var vertexBuffer = GL.createBuffer();
+		GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
+		GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(obj.vertices), GL.STATIC_DRAW);
+	}
+	
+	// コンストラクタ
+	var Graphics = function(canvas, obj){
+		this.gl;
+		this.obj = obj;
+		
+		// glの初期化
+    	GL = canvas.getContext("webgl");
+  		GL.viewport(0, 0, GL.drawingBufferWidth, GL.drawingBufferHeight);
+	
+		if(!GL){  // glの初期化に失敗した場合
+			alert("webgl is not supported!");
+		}
+		
+		initBuffers(this.obj);
+		initShaders();
+		
+		this.gl = GL;
+		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	};
+	
+	// prototypeチェーンで継承を実現する
+	var proto = Graphics.prototype;
+	
+	/*
+	 * シーンの描画
+	 */
+	proto.drawScene = function(){
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+		this.gl.drawArrays(this.gl.TRIANGLES, 0, this.obj.vLength);
+		this.gl.flush();
+	}
+	
+	return Graphics;
+})();
+
+// Triangle クラス
+var Triangle = (function() {
+	var AXES = 3;
+	
+	Triangle = function(){
+		this.vertices = [
+			0.0,  0.5, 0.0,
+			0.5, -0.5, 0.0,
+			-0.5, -0.5, 0.0
+		];
+		
+		// 頂点の数
+		this.vLength = this.vertices.length / AXES;
+	}
+	
+	// prototypeチェーンで継承を実現する
+	var proto = Triangle.prototype;
+	
+	return Triangle
+})();
 
 /*
- * webgl開始関数
+ * 描画開始関数
  */
-function webGLStart()
+function renderStart()
 {
   // HTMLのキャンバス要素オブジェクトを取得
-  var canvas = document.getElementById("webgl-canvas");
-  // glオブジェクトの初期化
-  initGL(canvas);
-  // 3Dオブジェクト情報を生成
-  OBJ = genTriangle();
-  // バッファ情報を初期化
-  initBuffers();
-  // シェーダ情報を初期化
-  initShaders();
-
-  // 画面クリアの色を設定
-  GL.clearColor(0.0, 0.0, 0.0, 1.0);
+  var canvas = document.getElementById("render-canvas");
+  
+  // Graphics オブジェクト生成
+  graphics = new Graphics(canvas, new Triangle());
 
   // シーンを描画
-  drawScene();
-}
-
-/*
- * glオブジェクト 初期化関数
- *
- * 引数 canvas : HTMLのcanvas要素オブジェクト
- */
-function initGL(canvas)
-{
-  // glの初期化
-  try{
-    GL = canvas.getContext("webgl");
-    GL.viewportWidth(canvas.width);
-    GL.viewportHeight(canvas.height);
-  }
-  catch(e){
-
-  }
-
-  if(!GL){  // glの初期化に失敗した場合
-    alert("webgl is not supported!");
-  }
-}
-
-/*
- * 三角形の3Dオブジェクトの頂点情報を生成する関数
- */
-function genTriangle()
-{
-  var obj = {}; // 返すオジェクト
-  var axes = 3;     // 軸の数 x,y,z
-
-  // 頂点座標 x, y, z
-  obj.p = [
-     0.0,  0.5, 0.0,
-     0.5, -0.5, 0.0,
-    -0.5, -0.5, 0.0
-  ];
-
-  // 座標の数
-  obj.l = obj.p.length / axes;
-
-  return obj;
-}
-
-/*
- * シェーダの初期化関数
- */
-function initShaders()
-{
-  // シェーダオブジェクトの生成
-  var vertexShader = getShader("shader-vertex");
-  var fragmentShader = getShader("shader-fragment");
-
-  // プログラムオブジェクトにシェーダをまとめる
-  var program = GL.createProgram();
-  GL.attachShader(program, vertexShader);
-  GL.attachShader(program, fragmentShader);
-  GL.linkProgram(program);
-
-  // プログラムオブジェクトの成功/失敗を確認
-  if(GL.getProgramParameter(program, GL.LINK_STATUS)){
-    GL.useProgram(program);
-  }
-  else{
-    alert(GL.getProgramInfoLog(program));
-  }
-
-  // 頂点データをプログラムオブジェクトに付与
-  var attLocation = GL.getAttribLocation(program, 'position');
-  GL.enableVertexAttribArray(attLocation);
-  GL.vertexAttribPointer(attLocation, 3, GL.FLOAT, false, 0, 0);
-}
-
-/*
- * シェーダをHTML要素のidより取得
- *
- * 戻り値 : シェーダオブジェクト
- */
-function getShader(id)
-{
-  var source = document.getElementById(id);
-  if(!source){ return null; }
-
-  var str = "";
-  var k = source.firstChild;
-  while(k){
-    if(k.nodeType == 3){
-      str += k.textContent;
-    }
-    k = k.nextSibling;
-  }
-
-  // 内部関数 : シェーダの種類を選別
-  function shaderType(){
-    switch (source.type) {
-      case "x-shader/x-fragment":
-        return GL.FRAGMENT_SHADER;
-      case "x-shader/x-vertex":
-        return GL.VERTEX_SHADER;
-      default:
-        return null;
-    }
-  }
-  // シェーダを生成
-  var shader = GL.createShader(shaderType());
-
-  // シェーダをコンパイル
-  GL.shaderSource(shader, str);
-  GL.compileShader(shader);
-
-  // コンパイルの成功/失敗を確認
-  if(!GL.getShaderParameter(shader, GL.COMPILE_STATUS)){
-    alert(GL.getShaderInfoLog(shader));
-    return null;
-  }
-
-  return shader;
-}
-
-/*
- * バッファの初期化関数
- */
-function initBuffers()
-{
-  // 頂点バッファの作成
-  var vertexBuffer = GL.createBuffer();
-  GL.bindBuffer(GL.ARRAY_BUFFER, vertexBuffer);
-  GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(OBJ.p), GL.STATIC_DRAW);
-}
-
-/*
- * シーンの描画
- */
-function drawScene()
-{
-  GL.clear(GL.COLOR_BUFFER_BIT);
-
-  GL.drawArrays(GL.TRIANGLES, 0, OBJ.l);
-  GL.flush();
+  graphics.drawScene();
 }
 </script>
 <script id="shader-vertex" type="x-shader/x-vertex">
@@ -189,7 +184,7 @@ void main(){
   <meta charset="utf-8">
   <title>webgl test</title>
 </head>
-<body onload="webGLStart()">
-  <canvas id="webgl-canvas" width="500px" height="500px" sytle="border:none;"></canvas>
+<body onload="renderStart()">
+  <canvas id="render-canvas" width="500px" height="500px" sytle="border:none;"></canvas>
 </body>
 </html>
