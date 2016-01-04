@@ -13,8 +13,8 @@ Graphics = (function(){
 	Graphics = function(args){
 		var defaultArgs = {
 			domelement : document.body,
-			physijsWorker : '/js/api/physijs_worker.js',
-			physijsAmmo : '/js/api/ammo.js',
+			physijsWorker : '/BattleTanks/src/js/api/physijs_worker.js',
+			physijsAmmo : '/BattleTanks/src/js/api/ammo.js',
 			antialias : true,
 			renderWidth : window.innerWidth,
 			renderHeight : window.innerHeight
