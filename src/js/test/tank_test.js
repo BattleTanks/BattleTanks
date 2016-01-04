@@ -1,3 +1,24 @@
+var assetman = {};
+assetman.assets = {};
+assetman.allLoaded = false;
+assetman.error = false;
+function loadObj(src){
+	if(UTIL.isUndefined(this.objLoader)) this.objLoader = new THREE.OBJLoader();
+
+	var whenLoaded = function(object){
+		console.log("loaded " + src);
+		assetman.assets[src] = object;
+		console.log(assetman);
+		assetman.allLoaded = true;
+	}
+	
+	var whenError = function(){
+		console.log(src + " is undefined!!");
+		assetman.error = true;
+	}
+	this.objLoader.load(src, whenLoaded, undefined, whenError);
+}
+
 function test(){
 	var scene, graphics, camera, element, inputman, actions;	
 	var init = function(){
@@ -24,7 +45,7 @@ function test(){
 	floor.translateY(-1);
 	scene.add(floor);
 	
-	var axes = O3DTemplate.createAxes(0, 1, 0);
+	var axes = O3DTemplate.createAxes(0, 5, 0);
 	scene.add(axes);
 	
 	// datas
@@ -152,6 +173,7 @@ function test(){
 	body.add(trackModel);
 	
 	// controlls
+	// vehicle control
 	var enableMotors = function(constraint){
 		constraint.enableAngularMotor(-5, 10);
 	};
@@ -182,35 +204,19 @@ function test(){
 		for(var i=0; i<wheelConstraints.length; ++i) reverseMotors(wheelConstraints[i]);
 	}
 	
-	var rightButton = new MomentaryButton();
-	var leftButton = new MomentaryButton();
-	var backButton = new MomentaryButton();
-	var pressRighButton = function(){
-		rightButton.down();
+	var vehicleButtons = {
+		right : new MomentaryButton(),
+		left : new MomentaryButton(),
+		back : new MomentaryButton()
 	}
-	var releaseRightButton = function(){
-		rightButton.up();
-	}
-	var pressLeftButton = function(){
-		leftButton.down();
-	}
-	var releaseLeftButton = function(){
-		leftButton.up();
-	}
-	var pressBackButton = function(){
-		backButton.down();
-	}
-	var releaseBackButton = function(){
-		backButton.up();
-	}
-	var pressForwardButton = function(){
-		pressRighButton();
-		pressLeftButton();
-	}
-	var releaseForwardButton = function(){
-		releaseRightButton();
-		releaseLeftButton();
-	}
+	var pressRighButton = function(){ vehicleButtons.right.down(); }
+	var releaseRightButton = function(){ vehicleButtons.right.up(); }
+	var pressLeftButton = function(){ vehicleButtons.left.down(); }
+	var releaseLeftButton = function(){ vehicleButtons.left.up(); }
+	var pressBackButton = function(){ vehicleButtons.back.down(); }
+	var releaseBackButton = function(){ vehicleButtons.back.up(); }
+	var pressForwardButton = function(){ pressRighButton(); pressLeftButton(); }
+	var releaseForwardButton = function(){ releaseRightButton(); releaseLeftButton(); }
 	
 	actions.insertKeyDownAction(pressForwardButton, "W");
 	actions.insertKeyUpAction(releaseForwardButton, "W");
@@ -220,21 +226,221 @@ function test(){
 	actions.insertKeyUpAction(releaseLeftButton, "D");
 	actions.insertKeyDownAction(pressBackButton, "S");
 	actions.insertKeyUpAction(releaseBackButton, "S");
+
+	// turret controll
+	var enableTurretMotors = function(constraint){ constraint.enableAngularMotor(-2, 10); };
+	var disableTurretMotors = function(constraint){ constraint.enableAngularMotor(0, 10); };
+	var reverseTurretMotors = function(constraint){ constraint.enableAngularMotor(2, 10); };
+	
+	var enableGunMotors = function(constraint){ constraint.enableAngularMotor(1, 10); };
+	var disableGunMotors = function(constraint){ constraint.enableAngularMotor(0, 10); };
+	var reverseGunMotors = function(constraint){ constraint.enableAngularMotor(-1, 10); };
+	
+	var rotateTurretRight = function(){ enableTurretMotors(turretConstraints["baseToMounter"]); };
+	var rotateTurretLeft = function(){ reverseTurretMotors(turretConstraints["baseToMounter"]); };
+	var disableTurret = function(){ disableTurretMotors(turretConstraints["baseToMounter"]) };
+	
+	var rotateGunUp = function(){ enableGunMotors(turretConstraints["mounterToMount"]); };
+	var rotateGunDown = function(){ reverseGunMotors(turretConstraints["mounterToMount"]); };
+	var disableGun = function(){ disableGunMotors(turretConstraints["mounterToMount"]) };
+	
+	var turretButtons = {
+		right : new MomentaryButton(),
+		left : new MomentaryButton(),
+		up : new MomentaryButton(),
+		down : new MomentaryButton()
+	};
+	var pressRotateRight   = function(){ turretButtons.right.down(); };
+	var releaseRotateRight = function(){ turretButtons.right.up(); };
+	var pressRotateLeft    = function(){ turretButtons.left.down(); };
+	var releaseRotateLeft  = function(){ turretButtons.left.up(); };
+	var pressAimUp         = function(){ turretButtons.up.down(); };
+	var releaseAimUp       = function(){ turretButtons.up.up(); };
+	var pressAimDown       = function(){ turretButtons.down.down(); };
+	var releaseAimDown     = function(){ turretButtons.down.up(); };
+	
+	actions.insertKeyDownAction(pressRotateRight, "L");
+	actions.insertKeyUpAction(releaseRotateRight, "L");
+	actions.insertKeyDownAction(pressRotateLeft, "J");
+	actions.insertKeyUpAction(releaseRotateLeft, "J");
+	actions.insertKeyDownAction(pressAimUp, "I");
+	actions.insertKeyUpAction(releaseAimUp, "I");
+	actions.insertKeyDownAction(pressAimDown, "K");
+	actions.insertKeyUpAction(releaseAimDown, "K");
+	
+	// gun controll
+	var time = new Time();
+	var timer = new Timer(10000);
+	time.addTimer(timer);
+	var worldBulletManager = {max:10, bullets:[]};
+	worldBulletManager.isFull = function(){
+		console.log(this.bullets.length);
+		return (this.bullets.length >= this.max);
+	};
+	worldBulletManager.pushBullet = function(bullet){
+		(this.isFull()) ? scene.remove(this.bullets.shift(bullet)) : this.bullets.push(bullet);
+	};
+	worldBulletManager.update = function(){
+		if(timer.isStoped()){
+			timer.start();
+		}
+		if(timer.isTimeup()){
+			var old = this.bullets.shift();
+			if(old){scene.remove(old);}
+			timer.restart();
+		}
+	}
+	
+	var gunButtons = {
+		trigger : new MomentaryButton()
+	};
+	var pullTrigger = function(){ gunButtons.trigger.down(); };
+	var releaseTrigger = function(){ gunButtons.trigger.up(); };
+	var fire = function(){
+		var position = new THREE.Vector3(0, 0, 0);
+		position.copy(gun.position);
+		gun.localToWorld(position);
+		
+		var gunPoint = new THREE.Vector3(0, 0, 0); 
+		gunPoint.copy(gun.rotation);
+		gun.localToWorld(gunPoint);
+		
+		var bullet = BattleTanksO3DTemplate.createBullet(0.2, 0.4, 3, new THREE.MeshBasicMaterial({color:0xffffff}), 0.8, 20);
+		bullet.addEventListener( 'collision', function(otherObject, linearVelocity, angularVelocity){
+				console.log("hit with " + otherObject.name + " : damage = " + linearVelocity.length()*20);
+				scene.remove(this);
+			}
+		);
+		bullet.position.set(position.x, position.y, position.z);
+		//bullet.rotation.copy(gunPoint);
+		
+		scene.add(bullet);
+		worldBulletManager.pushBullet(bullet);
+		
+		var muzzleSpeed = 10;
+		var localLinearV = new Vector3(0, 0, -muzzleSpeed);
+		localLinearV.applyEuler(gun.rotation);
+		bullet.setLinearVelocity((bullet.getLinearVelocity()).add(localLinearV));
+	};
+	
+	actions.insertKeyDownAction(pullTrigger, " ");
+	actions.insertKeyUpAction(releaseTrigger, " ");
+	
 	inputman.setActionTable(actions);
 
 	var updateTank = function(){
-		if(rightButton.isOn()) enableRightEngine();
+		if(vehicleButtons.right.isOn()) enableRightEngine();
 		else disableRightEngine();
-		if(leftButton.isOn()) enableLeftEngine();
+		if(vehicleButtons.left.isOn()) enableLeftEngine();
 		else disableLeftEngine();
-		if(backButton.isOn()) breakEngine();
+		if(vehicleButtons.back.isOn()) breakEngine();
 	}
-
+	
+	var updateTurret = function(){
+		if(turretButtons.right.isOn()) rotateTurretRight();
+		else if(turretButtons.left.isOn()) rotateTurretLeft();
+		else disableTurret();
+		
+		if(turretButtons.up.isOn()) rotateGunUp();
+		else if(turretButtons.down.isOn()) rotateGunDown();
+		else disableGun();
+	}
+	
+	var updateGun = function(){
+		if(gunButtons.trigger.isOn()) fire();
+	}
+	
+	// wait for assets to load
+	// load obj
+	loadObj("/BattleTanks/src/obj/plane.obj");
+	
+	var loadingCamera = graphics.createCamera({fov : 35});
+	loadingCamera.position.set( -10, 10, 10 );
+	loadingCamera.lookAt( scene.position );
+	
+	var loadingScene = graphics.createScene({physics:false});
+	loadingScene.add(camera);
+	
+	var loadingSign = O3DTemplate.createTexturedPlane(10, 10, TextureTemplate.createTextTexture("ロード中...", {textStartX : 210, textStartY : 300}));
+	loadingScene.add(loadingSign);
+	
+	var loadingLight = new THREE.AmbientLight(0xffffff,1);
+	loadingScene.add(loadingLight);
+	
+	// update
 	// update scene
 	var update = function() {
 		updateTank();
+		updateTurret();
+		updateGun();
+		worldBulletManager.update();
 		graphics.render(scene, camera); // render the scene
 		requestAnimationFrame( update );
 	};
-	update();
+	
+	// crate terrain
+	var createTerrain = function(){
+		console.log(assetman.assets);
+		var terrain = assetman.assets["/BattleTanks/src/obj/plane.obj"];
+		var terrainMesh;
+		var findMesh = function(child){ if(child instanceof THREE.Mesh){ terrainMesh = child; console.log("found mesh");} };
+		terrain.traverse(findMesh);
+		var terrainGeometry = new THREE.Geometry().fromBufferGeometry(terrainMesh.geometry);
+		var terrainPhysicsMesh = O3DTemplate.createPhysicsMesh("convex", terrainGeometry, new THREE.MeshLambertMaterial({color:0xa0e389}), 0.8, 0.6, 0);
+		terrain = terrainPhysicsMesh;
+		console.log(terrain);
+		
+		//terrain.position.set(new THREE.Vector3(0, 0, 0))
+		
+		var stopCreating = false;
+		
+		var whenReady = function(){ stopCreating = true; update(); };
+		terrain.addEventListener('ready', whenReady);
+		scene.add(terrain);
+		
+		scene.remove(floor);
+		
+		// add camea to turret
+		camera.position.copy((new THREE.Vector3(0, 0, 10)).add(turret.position));
+		camera.lookAt(turret.position);
+		turret.add(camera);
+		
+		var creating = function(){
+			if(stopCreating) return;
+			console.log("creating scene...");
+			loadingSign.rotation.y += 0.05;
+			graphics.render(loadingScene, camera);
+			requestAnimationFrame(creating);
+		}
+		creating();
+	}
+	
+	/*
+	createTerrain = function(){
+		var terrain = floor;
+		for(var i=0; i < 20; ++i){
+			var height = Math.random()%5+1;
+			var block = O3DTemplate.createBox(Math.random()%5+1, height, Math.random()%5+1, new THREE.MeshLambertMaterial({color:0xa0e389}), true, 0.8, 0.6, 0);
+			block.position.set(new THREE.Vector3(Math.random()%20+2, height/2, Math.random()%20+2))
+			terrain.add(block);
+		}
+
+		
+		update();
+	}
+	*/
+	
+	// load obj
+	var load = function(){
+		console.log("loading...");
+		if(assetman.allLoaded){
+			createTerrain();
+			return;
+		}
+		if(assetman.error) return;
+		loadingSign.rotation.y += 0.05;
+		graphics.render(loadingScene, camera);
+		requestAnimationFrame(load);
+	};
+	load();
 }
