@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>event table test</title>
+	<style>
+	body{
+		background: #fad;
+		width:100%;
+		height:100%;
+	};
+	div{
+		background: black;
+		width:210px;
+		height:210px;
+	};
+	</style>
+</head>
+<body>
+<div id="div">
+hello
+</div>
+<script src="util.js" charset="utf-8"></script>
+<script src="input_action_table.js"></script>
+<script>
+	var inputman = new InputActionManager();
+	//var inputman = new InputActionManager(BROUSER.getElementById("div"));
+	
+	var table = new ActionTable();
+	table.insertKeyDownAction(function(keycode){ console.log("key down : " + String.fromCharCode(keycode)); });
+	table.insertKeyDownAction(function(){ console.log("key down of A"); }, "A");
+	table.insertKeyUpAction(function(keycode){ console.log("key up : " + String.fromCharCode(keycode)); });
+	table.insertKeyUpAction(function(){ console.log("key up of A"); }, "A");
+	table.insertMouseButtonDownAction(function(button){ console.log("mouse button : " + button); });
+	table.insertMouseButtonDownAction(function(){ console.log("mouse button of " + BROUSER.inputs.MOUSE_MIDDLE_BUTTON); }, BROUSER.inputs.MOUSE_MIDDLE_BUTTON);
+	table.insertMouseButtonUpAction(function(button){ console.log("mouse button : " + button); });
+	table.insertMouseButtonUpAction(function(){ console.log("mouse button of " + BROUSER.inputs.MOUSE_LEFT_BUTTON); },  BROUSER.inputs.MOUSE_LEFT_BUTTON);
+	table.insertMouseWheelUpAction(function(speed){ console.log("mouse wheel up : " + speed); });
+	table.insertMouseWheelDownAction(function(speed){ console.log("mouse wheel down : " + speed); });
+	table.insertMouseMoveAction(function(coord){ console.log("mouse move x : " + coord.x + " y : " + coord.y); });
+	table.insertMouseMoveHorizontalAction(function(x){ console.log("mouse move horizontal : " + x); });
+	table.insertMouseMoveVerticalAction(function(y){ console.log("mouse move vertical : " + y); });
+	
+	var table2 = new ActionTable();
+	table.insertKeyDownAction(function(){ console.log("switching to table2"); inputman.setActionTable(table2); }, "2");
+	
+	table2.insertKeyDownAction(function(keycode){ console.log("yoho derp : " + keycode); });
+	table2.insertKeyDownAction(function(){ console.log("switching to table1"); inputman.setActionTable(table); }, "1");
+	
+	inputman.setActionTable(table);
+</script>
+</body>
+</html>

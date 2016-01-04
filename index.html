@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>test</title>
+</head>
+<style>
+	html,body{
+		background: gray;
+		width:100%;
+		height:100%;
+	}
+	#battletanks{
+		margin:0 auto;
+		/*width:inherit;*/
+		/*height:inherit;*/
+		width:1000px;
+		height:600px;
+		background: red;
+	}
+</style>
+<script src="/js/util/util.js"></script>
+<script src="/js/util/application.js"></script>
+<script src="/js/util/state.js"></script>
+<script src="/js/util/input_action_table.js"></script>
+
+<script src="/js/api/three.min.js"></script>
+<script src="/js/api/physi.js"></script>
+<script src="/js/api/DDSLoader.js"></script>
+<script src="/js/api/OBJLoader.js"></script>
+<script src="/js/api/OBJMTLLoader.js"></script>
+<script src="/js/util/graphics.js"></script>
+
+<script src="/js/util/button.js"></script>
+
+<script src="/js/battle_tanks.js"></script>
+<script src="/js/states/battle_tanks_launch_state.js"></script>
+
+<body>
+	<div id="battletanks">
+	<script>
+		var app = new BattleTanks(BROUSER.getElementById("battletanks"));
+		update = function(){
+			if(!app.isRunning()) return;
+			app.update();
+			app.render();
+			BROUSER.requestAnimationFrame(update);
+		}
+		update();
+	</script>
+	</div>
+</body>
+</html>
