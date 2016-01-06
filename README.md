@@ -64,7 +64,7 @@ include("foo.js"); // foo.js が読み込まれる
 
 
 ###4. 音の再生
-sound.htmlのソースをコピペまたはダウンロードし，
+[sound.html](https://github.com/BattleTanks/BattleTanks/blob/work/sound.html)のソースをコピペまたはダウンロードし，
 
 * volume関数　：　音量調整関数
 * play関数　：　音再生関数
