@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title> 音の出力 </title>
+</head>
+<body>
+<!-- ここからJavascript -->
+<script>
+
+	// 音量調整関数
+	// 	引数 value : 音量 最小0.0〜1.0最大
+	function volume(value){
+		// ここを実装
+	}
+	
+	// 音量再生関数
+	function play(){
+		// ここを実装
+	}
+	
+	// キー入力検知関数
+	function whenKeyDown(event){
+		key = String.fromCharCode(event.keyCode);
+		switch(key){
+			case "P":			// pキーで再生
+				console.log("再生");
+				play();
+				break;
+			case "U":			// uキーで消音
+				console.log("消音");
+				volume(0.0);
+				break;
+			case "I":			// iキーで中間音量
+				console.log("中間音量");
+				volume(0.5);
+				break;
+			case "O":			// oキーで最大音量
+				console.log("最大音量");
+				volume(1.0);
+				break;
+			default:
+				return;
+		}
+	}
+	
+	// キーを押すとplayが実行される
+	document.addEventListener("keydown", whenKeyDown, false);
+	
+</script>
+</body>
+</html>
