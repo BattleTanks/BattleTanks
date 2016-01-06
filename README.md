@@ -61,7 +61,7 @@ include("foo.js"); // foo.js が読み込まれる
 ```
 
 上記のようなものが実現できれば手段は問わない．
-
+[参考](http://qiita.com/w650/items/adb108649a0e2a86f334)
 
 ###4. 音の再生
 [sound.html](https://github.com/BattleTanks/BattleTanks/blob/work/sound.html)のソースをコピペまたはダウンロードし，
