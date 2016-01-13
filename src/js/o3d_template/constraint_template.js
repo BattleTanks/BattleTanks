@@ -25,7 +25,7 @@ _ConstraintTemplate = (function(){
 		constraint.setLimits(angleRange.getMin(), angleRange.getMax(), undefined, UTIL.optional(0.0, bounce));
 		return constraint;
 	};
-	
+
 	proto.createWheelConstraint = function(scene, child, point, axis, parent){
 		var constraint = this.createHingeConstraint(scene, child, point, axis, new Range(0, 2*Math.PI), 0.0, parent);
 		return constraint;
@@ -33,12 +33,12 @@ _ConstraintTemplate = (function(){
 
 	/*---
 	Arguments must be the following
-	
+
 	var mountData = {
 		object : Physijs Mesh
 		mounterPoint : THREE.Vector3
 	};
-	
+
 	var mounterData = {
 		object : Physijs Mesh
 		mountPoint : THREE.Vector3
@@ -47,7 +47,7 @@ _ConstraintTemplate = (function(){
 		rotationBounce : 0.0(nobounce) ~ 1.0(bouncy)
 		basePoint : THREE.Vector3
 	};
-	
+
 	var baseData = {
 		object : Physijs Mesh
 		mounterPoint : THREE.Vector3
@@ -74,7 +74,7 @@ _ConstraintTemplate = (function(){
 											scene,
 											mounterData.object, baseWMP,
 											baseData.rotationAxis, baseData.rotationRange, baseData.rotationBounce, baseData.object);
-											
+
 		return {"mounterToMount" : mounterToMountConstraint, "baseToMounter" : baseToMounterConstraint};
 	};
 
@@ -85,7 +85,7 @@ _ConstraintTemplate = (function(){
 			var constraint = this.createWheelConstraint(scene, wheels[i], wheels[i].position, PointTemplate.XAXIS, parent);
 			constraints.push(constraint);
 		}
-		
+
 		return constraints;
 	};
 

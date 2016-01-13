@@ -11,7 +11,7 @@ function loadObj(src){
 		console.log(assetman);
 		assetman.allLoaded = true;
 	}
-	
+
 	var whenError = function(){
 		console.log(src + " is undefined!!");
 		assetman.error = true;
@@ -20,13 +20,13 @@ function loadObj(src){
 }
 
 function test(){
-	var scene, graphics, camera, element, inputman, actions;	
+	var scene, graphics, camera, element, inputman, actions;
 	var init = function(){
 		element = BROUSER.getElementById("viewport");
 		graphics = new Graphics({shadow:true, domelement:element, renderWidth:element.clientWidth, renderHeight:element.clientHeight });
 		graphics.enableShadow();
 		scene = graphics.createScene({physics:true, repoertSize : 30});
-		
+
 		camera = graphics.createCamera({fov : 35});
 		camera.position.set( -10, 10, 10 );
 		camera.lookAt( scene.position );
@@ -35,19 +35,19 @@ function test(){
 		var light = O3DTemplate.setLazyShadowSettings(new THREE.DirectionalLight(0xffffff,1));
 		light.position.set(10, 10, 10);
 		scene.add(light);
-		
+
 		inputman = new InputActionManager(element);
 		actions = new ActionTable();
 	};
 	init();
-	
+
 	var floor = O3DTemplate.createFloor(60, 60, new THREE.MeshLambertMaterial({color:0x88dd99}), true, 0.9, 1.0, 0);
 	floor.translateY(-1);
 	scene.add(floor);
-	
+
 	var axes = O3DTemplate.createAxes(0, 5, 0);
 	scene.add(axes);
-	
+
 	// datas
 	var gunData = {
 		width : 0.2,
@@ -55,7 +55,7 @@ function test(){
 		length : 2.0,
 		turretConnectPoint : new THREE.Vector3(0.0, 0.0, 1.0)
 	};
-	
+
 	var turretData = {
 		width : 1.0,
 		height : 1.0,
@@ -66,7 +66,7 @@ function test(){
 		gunRotationBounce : 0.0,
 		bodyConnectPoint : new THREE.Vector3(0.0, -0.5, 0.0)
 	};
-	
+
 	var bodyData = {
 		width : 1.0,
 		height : 0.5,
@@ -80,7 +80,7 @@ function test(){
 		backRightWheelConnectPoint  : new THREE.Vector3(0.5 + 0.1+ 0.5, 0.0, -1.0),
 		backLeftWheelConnectPoint : new THREE.Vector3(- (0.5 + 0.1+ 0.5), 0.0, -1.0)
 	};
-	
+
 	var radius = 0.5;
 	var wheelData = {
 		total : 4,
@@ -92,12 +92,12 @@ function test(){
 		restitution : 1.0,
 		material : new THREE.MeshLambertMaterial({color : 0xdd0099})
 	};
-	
+
 	// create object
 	var body   = O3DTemplate.createBox(bodyData.width, bodyData.height, bodyData.depth, new THREE.MeshLambertMaterial({color:0xa992f0}), true, 0.9, 0.0, 100);
 	var turret = O3DTemplate.createBox(turretData.width, turretData.height, turretData.depth, new THREE.MeshLambertMaterial({color:0x03349f}), true, 0.9, 0.0, 20);
 	var gun    = O3DTemplate.createBox(gunData.width, gunData.height, gunData.length, new THREE.MeshLambertMaterial({color:0x34f903}), true, 0.9, 0.0, 1);
-	
+
 	var createWheels = function(count){
 		var wheels = [];
 		for(var i = 0; i < count; ++i){
@@ -107,16 +107,16 @@ function test(){
 		return wheels;
 	};
 	var wheels = createWheels(wheelData.total);
-	
+
 	var trackModel = O3DTemplate.createBox(
 		wheelData.radius*2, bodyData.height + wheelData.radius * 2 + 0.1, bodyData.depth, new THREE.MeshBasicMaterial({color:0xff0000, wireframe:true}));
-	
+
 	// setup constraint arguments
 	var mountData = {
 		object : gun,
 		mounterPoint : gunData.turretConnectPoint,
 	};
-	
+
 	var mounterData = {
 		object : turret,
 		mountPoint : turretData.gunConnectPoint,
@@ -125,7 +125,7 @@ function test(){
 		rotationBounce : turretData.gunRotationBounce,
 		basePoint : turretData.bodyConnectPoint
 	};
-	
+
 	var baseData = {
 		object : body,
 		mounterPoint : bodyData.turretConnectPoint,
@@ -133,7 +133,7 @@ function test(){
 		rotationRange : bodyData.turretRotationRange,
 		rotationBounce : bodyData.turretRotationBounce
 	};
-	
+
 	// set constraint
 	var spawnPoint = new THREE.Vector3(0.0, 1.0, 0.0);
 	body.position.copy(spawnPoint);	// translate body to spawn point
@@ -144,19 +144,19 @@ function test(){
 
 	// position objects
 	PointTemplate.mountTurret(baseData.object, mounterData.object, mountData.object, baseData.mounterPoint, mounterData.basePoint, mounterData.mountPoint, mountData.mounterPoint);
-	
+
 	var connectionPoints = [bodyData.frontRightWheelConnectPoint, bodyData.backRightWheelConnectPoint, bodyData.frontLeftWheelConnectPoint, bodyData.backLeftWheelConnectPoint];
 	for(var i = 0; i < connectionPoints.length; ++i) wheels[i].position.copy(PointTemplate.getWorldPoint(body, connectionPoints[i]));
-	
+
 	// add to scene
 	scene.add(gun);
 	scene.add(turret);
 	for(var i = 0; i < wheels.length; ++i) scene.add(wheels[i]);
 	scene.add(body);
-	
+
 	// create constraints
 	var turretConstraints = ConstraintTemplate.createTurretConstraint(scene, baseData, mounterData, mountData);
-	
+
 	//var constraints = ConstraintTemplate.createTrackContraint(scene, wheels, wheelPoint, interval, PointTemplate.ZAXIS, body);
 	function createWheelConstraints(wheels, connectionPoints){
 		var constraints = [];
@@ -166,12 +166,12 @@ function test(){
 		}
 		return constraints;
 	}
-	
+
 	var wheelConstraints = createWheelConstraints(wheels, connectionPoints);
-	
+
 	scene.add(trackModel);
 	body.add(trackModel);
-	
+
 	// controlls
 	// vehicle control
 	var enableMotors = function(constraint){
@@ -183,7 +183,7 @@ function test(){
 	var reverseMotors = function(constraint){
 		constraint.enableAngularMotor(5, 10);
 	};
-	
+
 	var enableRightEngine = function(){
 		enableMotors(wheelConstraints[0]);
 		enableMotors(wheelConstraints[1]);
@@ -203,7 +203,7 @@ function test(){
 	var breakEngine = function(){
 		for(var i=0; i<wheelConstraints.length; ++i) reverseMotors(wheelConstraints[i]);
 	}
-	
+
 	var vehicleButtons = {
 		right : new MomentaryButton(),
 		left : new MomentaryButton(),
@@ -217,7 +217,7 @@ function test(){
 	var releaseBackButton = function(){ vehicleButtons.back.up(); }
 	var pressForwardButton = function(){ pressRighButton(); pressLeftButton(); }
 	var releaseForwardButton = function(){ releaseRightButton(); releaseLeftButton(); }
-	
+
 	actions.insertKeyDownAction(pressForwardButton, "W");
 	actions.insertKeyUpAction(releaseForwardButton, "W");
 	actions.insertKeyDownAction(pressRighButton, "A");
@@ -231,19 +231,19 @@ function test(){
 	var enableTurretMotors = function(constraint){ constraint.enableAngularMotor(-2, 10); };
 	var disableTurretMotors = function(constraint){ constraint.enableAngularMotor(0, 10); };
 	var reverseTurretMotors = function(constraint){ constraint.enableAngularMotor(2, 10); };
-	
+
 	var enableGunMotors = function(constraint){ constraint.enableAngularMotor(1, 10); };
 	var disableGunMotors = function(constraint){ constraint.enableAngularMotor(0, 10); };
 	var reverseGunMotors = function(constraint){ constraint.enableAngularMotor(-1, 10); };
-	
+
 	var rotateTurretRight = function(){ enableTurretMotors(turretConstraints["baseToMounter"]); };
 	var rotateTurretLeft = function(){ reverseTurretMotors(turretConstraints["baseToMounter"]); };
 	var disableTurret = function(){ disableTurretMotors(turretConstraints["baseToMounter"]) };
-	
+
 	var rotateGunUp = function(){ enableGunMotors(turretConstraints["mounterToMount"]); };
 	var rotateGunDown = function(){ reverseGunMotors(turretConstraints["mounterToMount"]); };
 	var disableGun = function(){ disableGunMotors(turretConstraints["mounterToMount"]) };
-	
+
 	var turretButtons = {
 		right : new MomentaryButton(),
 		left : new MomentaryButton(),
@@ -258,7 +258,7 @@ function test(){
 	var releaseAimUp       = function(){ turretButtons.up.up(); };
 	var pressAimDown       = function(){ turretButtons.down.down(); };
 	var releaseAimDown     = function(){ turretButtons.down.up(); };
-	
+
 	actions.insertKeyDownAction(pressRotateRight, "L");
 	actions.insertKeyUpAction(releaseRotateRight, "L");
 	actions.insertKeyDownAction(pressRotateLeft, "J");
@@ -267,7 +267,7 @@ function test(){
 	actions.insertKeyUpAction(releaseAimUp, "I");
 	actions.insertKeyDownAction(pressAimDown, "K");
 	actions.insertKeyUpAction(releaseAimDown, "K");
-	
+
 	// gun controll
 	var time = new Time();
 	var timer = new Timer(10000);
@@ -290,7 +290,7 @@ function test(){
 			timer.restart();
 		}
 	}
-	
+
 	var gunButtons = {
 		trigger : new MomentaryButton()
 	};
@@ -300,11 +300,11 @@ function test(){
 		var position = new THREE.Vector3(0, 0, 0);
 		position.copy(gun.position);
 		gun.localToWorld(position);
-		
-		var gunPoint = new THREE.Vector3(0, 0, 0); 
+
+		var gunPoint = new THREE.Vector3(0, 0, 0);
 		gunPoint.copy(gun.rotation);
 		gun.localToWorld(gunPoint);
-		
+
 		var bullet = BattleTanksO3DTemplate.createBullet(0.2, 0.4, 3, new THREE.MeshBasicMaterial({color:0xffffff}), 0.8, 20);
 		bullet.addEventListener( 'collision', function(otherObject, linearVelocity, angularVelocity){
 				console.log("hit with " + otherObject.name + " : damage = " + linearVelocity.length()*20);
@@ -313,19 +313,19 @@ function test(){
 		);
 		bullet.position.set(position.x, position.y, position.z);
 		//bullet.rotation.copy(gunPoint);
-		
+
 		scene.add(bullet);
 		worldBulletManager.pushBullet(bullet);
-		
+
 		var muzzleSpeed = 10;
 		var localLinearV = new Vector3(0, 0, -muzzleSpeed);
 		localLinearV.applyEuler(gun.rotation);
 		bullet.setLinearVelocity((bullet.getLinearVelocity()).add(localLinearV));
 	};
-	
+
 	actions.insertKeyDownAction(pullTrigger, " ");
 	actions.insertKeyUpAction(releaseTrigger, " ");
-	
+
 	inputman.setActionTable(actions);
 
 	var updateTank = function(){
@@ -335,38 +335,38 @@ function test(){
 		else disableLeftEngine();
 		if(vehicleButtons.back.isOn()) breakEngine();
 	}
-	
+
 	var updateTurret = function(){
 		if(turretButtons.right.isOn()) rotateTurretRight();
 		else if(turretButtons.left.isOn()) rotateTurretLeft();
 		else disableTurret();
-		
+
 		if(turretButtons.up.isOn()) rotateGunUp();
 		else if(turretButtons.down.isOn()) rotateGunDown();
 		else disableGun();
 	}
-	
+
 	var updateGun = function(){
 		if(gunButtons.trigger.isOn()) fire();
 	}
-	
+
 	// wait for assets to load
 	// load obj
 	loadObj("/BattleTanks/src/obj/plane.obj");
-	
+
 	var loadingCamera = graphics.createCamera({fov : 35});
 	loadingCamera.position.set( -10, 10, 10 );
 	loadingCamera.lookAt( scene.position );
-	
+
 	var loadingScene = graphics.createScene({physics:false});
 	loadingScene.add(camera);
-	
+
 	var loadingSign = O3DTemplate.createTexturedPlane(10, 10, TextureTemplate.createTextTexture("ロード中...", {textStartX : 210, textStartY : 300}));
 	loadingScene.add(loadingSign);
-	
+
 	var loadingLight = new THREE.AmbientLight(0xffffff,1);
 	loadingScene.add(loadingLight);
-	
+
 	// update
 	// update scene
 	var update = function() {
@@ -377,7 +377,7 @@ function test(){
 		graphics.render(scene, camera); // render the scene
 		requestAnimationFrame( update );
 	};
-	
+
 	// crate terrain
 	var createTerrain = function(){
 		console.log(assetman.assets);
@@ -389,22 +389,22 @@ function test(){
 		var terrainPhysicsMesh = O3DTemplate.createPhysicsMesh("convex", terrainGeometry, new THREE.MeshLambertMaterial({color:0xa0e389}), 0.8, 0.6, 0);
 		terrain = terrainPhysicsMesh;
 		console.log(terrain);
-		
+
 		//terrain.position.set(new THREE.Vector3(0, 0, 0))
-		
+
 		var stopCreating = false;
-		
+
 		var whenReady = function(){ stopCreating = true; update(); };
 		terrain.addEventListener('ready', whenReady);
 		scene.add(terrain);
-		
+
 		scene.remove(floor);
-		
+
 		// add camea to turret
 		camera.position.copy((new THREE.Vector3(0, 0, 10)).add(turret.position));
 		camera.lookAt(turret.position);
 		turret.add(camera);
-		
+
 		var creating = function(){
 			if(stopCreating) return;
 			console.log("creating scene...");
@@ -414,7 +414,7 @@ function test(){
 		}
 		creating();
 	}
-	
+
 	/*
 	createTerrain = function(){
 		var terrain = floor;
@@ -425,11 +425,11 @@ function test(){
 			terrain.add(block);
 		}
 
-		
+
 		update();
 	}
 	*/
-	
+
 	// load obj
 	var load = function(){
 		console.log("loading...");

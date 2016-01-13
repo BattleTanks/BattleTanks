@@ -2,7 +2,6 @@ StateMachine = (function(){
 	StateMachine = function(startingState){
 		this._currentState = startingState;
 		this._previousState = undefined;
-		this._state
 	};
 
 	proto = StateMachine.prototype;
@@ -17,7 +16,15 @@ StateMachine = (function(){
 		this._currentState.exit();
 		this._previousState = this._currentState;
 		this._currentState = state;
-		this._currnetState.enter();
+		this._currentState.enter();
+	};
+
+	proto.update = function(dt){
+		this._currentState.update(dt);
+	};
+
+	proto.render = function(renderer){
+		this._currentState.render(renderer);
 	};
 
 	return StateMachine;

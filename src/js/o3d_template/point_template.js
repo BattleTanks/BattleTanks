@@ -1,6 +1,6 @@
 _PointTemplate = (function(){
 	Vector3 = THREE.Vector3;
-	
+
 	_PointTemplate = function(){
 		this.XAXIS = new Vector3(1, 0, 0);
 		this.YAXIS = new Vector3(0, 1, 0);
@@ -18,7 +18,7 @@ _PointTemplate = (function(){
 	proto.getWorldPoint = function(object, objectLocalPoint){
 		return (new Vector3()).addVectors(object.position, objectLocalPoint);
 	};
-	
+
 	proto.getDirectionVector = function(source, target){
 		return (new Vector3()).subVectors(target, source);
 	};
@@ -46,7 +46,7 @@ _PointTemplate = (function(){
 			objects[i].position.add(translateV.add(intervalV)); // like x += interval*i
 		}
 	};
-	
+
 	/*
 	 Arguments
 		base : base object

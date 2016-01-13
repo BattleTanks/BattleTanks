@@ -1,7 +1,11 @@
 Model = (function(){
 	Model = function(){
-		this._id;
 		this._children = new Iterator();
+
+		this.id = undefined;
+		this.object3d = undefined;
+		this.data = undefined;
+		this.action = undefined;
 	};
 
 	proto = Model.prototype;
@@ -9,26 +13,22 @@ Model = (function(){
 	proto.add = function(node){
 		this._children.push(node);
 	};
-	
-	proto.updateSelf = function(){
-		BROUSER.warn("Model._updateSelf is not defined!!");
-	};
-	
-	proto.update = function(){
-		this.updateSelf();
+
+	proto.traverse = function(callback){
+		callback(this);
 		for(var child = this._children.first(); child; child = this._children.next()){
-			child.update();
+			child.traverse(callback);
 		}
 	};
-	
-	proto.renderSelf = function(renderer){
-		BROUSER.warn("Model._renderSelf is not defined!!");
+
+	proto._update = function(dt){
+		BROUSER.warn("Model._update is not defined!!");
 	};
-	
-	proto.render = function(renderer){
-		this.renderSelf(renderer);
+
+	proto.update = function(dt){
+		this._update(dt);
 		for(var child = this._children.first(); child; child = this._children.next()){
-			child.render(renderer);
+			child.update(dt);
 		}
 	};
 

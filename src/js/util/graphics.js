@@ -9,7 +9,7 @@ Graphics = (function(){
 		UTIL.mergeObjects(args, defaultArgs);
 		return defaultArgs;
 	}
-	
+
 	Graphics = function(args){
 		var defaultArgs = {
 			domelement : document.body,
@@ -20,12 +20,12 @@ Graphics = (function(){
 			renderHeight : window.innerHeight
 		};
 		args = _mergeDefaultArgs(defaultArgs, args);
-		
+
 		function __setupPhysijsScripts(){
 			Physijs.scripts.worker = args.physijsWorker;
 			Physijs.scripts.ammo = args.physijsAmmo;
 		};
-		
+
 		function __createRenderer(){
 			var domelement = args.domelement;
 			BROUSER.log("render width:" + args.renderWidth + " height:" + args.renderHeight);
@@ -37,7 +37,7 @@ Graphics = (function(){
 			domelement.appendChild(renderer.domElement);
 			return renderer;
 		};
-		
+
 		__setupPhysijsScripts();
 		this._domelement = args.domelement;
 		this._renderer   = __createRenderer();
@@ -46,23 +46,23 @@ Graphics = (function(){
 	};
 
 	proto = Graphics.prototype;
-	
+
 	proto.enableShadow = function(args){
 		var defaultArgs = {
 			mapType : THREE.PCFShadowMap,
 			soft : true
 		};
 		args = _mergeDefaultArgs(defaultArgs, args);
-		
+
 		this._renderer.shadowMap.enabled = true;
 		this._renderer.shadowMap.type = args.mapType;
 		this._renderer.shadowMapSoft = args.soft;
 	};
-	
+
 	proto.disableShadow = function(){
 		this._renderer.shadowMap.enabled = false;
 	};
-	
+
 	proto.createScene = function(args){
 		var defaultArgs = {
 			physics : false,
@@ -70,7 +70,7 @@ Graphics = (function(){
 			gravity : new Vector3(0, -9.8, 0)
 		};
 		args = _mergeDefaultArgs(defaultArgs, args);
-		
+
 		function __createPhysicsScene(){
 			var physijsSceneArgs = {
 				reportsize : args.reportSize
@@ -80,16 +80,16 @@ Graphics = (function(){
 			scene.userData = {physics : true};
 			return scene;
 		};
-		
+
 		function __createStaticScene(){
 			var scene = new THREE.Scene();
 			scene.userData = {physics : false};
 			return scene;
 		};
-		
+
 		return args.physics ? __createPhysicsScene() : __createStaticScene();
 	};
-	
+
 	proto.createCamera = function(args){
 		var defaultArgs = {
 			clipNear : 0.1,
@@ -105,28 +105,28 @@ Graphics = (function(){
 			frustumBottom : this._renderHeight / (-2)
 		};
 		args = _mergeDefaultArgs(defaultArgs, args);
-		
+
 		var __createCamera = {};
-		
+
 		__createCamera["perspective"] = function(){
 			return new THREE.PerspectiveCamera(args.fov, args.aspectRatio, args.clipNear, args.clipFar);
 		};
-		
+
 		__createCamera["orthographic"] = function(){
 			return new THREE.OrthographicCamera(args.frustumLeft, args.frustumRight, args.frustumTop, args.frustumBottom, args.clipNear, args.clipFar);
 		};
-		
+
 		return __createCamera[args.type]();
 	};
-	
+
 	proto.render = function(scene, camera, dt, steps){
 		var timeStep = UTIL.optional(undefined, dt);
 		var maxsteps = UTIL.optional(1, steps);
 		if(scene.userData.physics) scene.simulate(timeStep, maxsteps);
 		this._renderer.render(scene, camera);
 	};
-	
+
 	proto.templates = {};
-	
+
 	return Graphics;
 })();
