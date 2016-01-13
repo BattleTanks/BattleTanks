@@ -1,26 +1,9 @@
-ControllerButton = (function(){
-	ControllerButton = function(button){
-		this.button = button;
-	};
-	
-	proto = ControllerButton.prototype;
-	
-	proto.press = function(){
-		this.button.down();
-	};
-	
-	proto.release = function(){
-		this.button.up();
-	};
-	
-	return ControllerButton;
-})();
-
 TurretModel = (function(){
 	TurretModel = function(id){
 		Model.call(this);
 
 		this.id = id;
+		this.type;
 
 		function createTurretObject(){
 			var size = {
@@ -39,8 +22,7 @@ TurretModel = (function(){
 		this.rotationAxis = new THREE.Vector3(1.0, 0.0, 0.0);
 		this.rotationRange = new Range(0, Math.PI/6);
 		this.rotationBounce = 0.0;
-
-		this.turret;
+		
 		this.gunConstraint;
 		this.controller = {
 			aimUpButton : new MomentaryButton(),
@@ -52,8 +34,9 @@ TurretModel = (function(){
 
 	proto = TurretModel.prototype;
 
-	proto.mountGun = function(turret){
-		PointTemplate.mount(turret.object3d, this.object3d, turret.mounterPoint, this.mountPoint);
+	proto.mountGun = function(gun){
+		this.add(gun);
+		PointTemplate.mount(gun.object3d, this.object3d, gun.mounterPoint, this.mountPoint);
 	};
 
 	proto.rotateGunUp = function(){
