@@ -5,9 +5,9 @@ TurretData = {
 	mounter : {
 		point : new Three.Vector3(),
 	},
-	gun : {
-		model : null,
-		mount : {
+ 	mount : {
+		gun : {
+			type : GunModel,
 			point : new Three.Vector3(),
 			rotation : {
 				axis : new Three.Vector3(),
@@ -22,6 +22,7 @@ TurretData = {
 TurretModel = (function(){
 	TurretModel = function(data){
 		Model.call(this);
+		
 		this.data = data;
 		this.controller = {
 			aimUpButton : new MomentaryButton(),
@@ -33,10 +34,32 @@ TurretModel = (function(){
 
 	proto = TurretModel.prototype;
 
-	proto.mountGun = function(gun){
-		this.add(gun);
-		PointTemplate.mount(gun.object3d, this.object3d, gun.mounterPoint, this.mountPoint);
+	proto.mount = function(mount){
+		for(var child = this.children.first(); child; this.children.next()){
+			if(child instanceof mount.type) PointTemplate.mount(child.data.object3d, this.data.object3d, child.data.mounter.point, mount.point);
+		}
 	};
+
+	proto.addToScene = function(scene){
+		// mount
+		for(var mount in this.data.mount){
+			this.mount(this.data.mount[mountId]);
+		}
+		
+		// add to scene
+		for(var child = this.children.first(); child; this.children.next()){
+			child.addToScene(scene);
+		}
+		
+		// constrain
+		for(var mount in this.data.mount){
+			mount.constraint = for(var )
+		}
+		
+		for(var child = this.children.frist(); child; this.children.next()){
+			child.constraint();
+		}
+	}
 
 	proto.rotateGunUp = function(){
 		this.gunConstraint.enableAngularMotor(2, 10);
