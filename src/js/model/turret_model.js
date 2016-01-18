@@ -1,29 +1,28 @@
-TurretModel = (function(){
-	TurretModel = function(id){
-		Model.call(this);
-
-		this.id = id;
-		this.type;
-
-		function createTurretObject(){
-			var size = {
-				width: 1.0,
-				height: 1.0,
-				depth: 1.0
-			};
-			return O3DTemplate.createBox(size.width, size.height, size.depth, new THREE.MeshLambertMaterial({color:0x9f25f0}), true, 0.9, 0.0, 20);
+TurretData = {
+	id : "",
+	type : "turret",
+	object3d : null,
+	mounter : {
+		point : new Three.Vector3(),
+	},
+	gun : {
+		model : null,
+		mount : {
+			point : new Three.Vector3(),
+			rotation : {
+				axis : new Three.Vector3(),
+				range : new Range(0, 0),
+				bounce : 0.0
+			},
+			constraint : null
 		}
+	}
+};
 
-		this.object3d = createTurretObject();
-
-		this.mounterPoint = new THREE.Vector3(0.0, -0.5, 0.0);
-
-		this.mountPoint = new THREE.Vector3(0.0, 0.0, -0.6);
-		this.rotationAxis = new THREE.Vector3(1.0, 0.0, 0.0);
-		this.rotationRange = new Range(0, Math.PI/6);
-		this.rotationBounce = 0.0;
-		
-		this.gunConstraint;
+TurretModel = (function(){
+	TurretModel = function(data){
+		Model.call(this);
+		this.data = data;
 		this.controller = {
 			aimUpButton : new MomentaryButton(),
 			aimDownButton : new MomentaryButton()

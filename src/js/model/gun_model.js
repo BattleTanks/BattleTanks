@@ -1,23 +1,18 @@
+GunData = {
+	id : "",
+	type : "gun",
+	object3d : null,
+	mounter : {
+		point : new Three.Vector3(),
+	}
+};
+
 GunModel = (function(){
 	var Vector3 = THREE.Vector3;
 
-	GunModel = function(id){
+	GunModel = function(data){
 		Model.call(this);
-
-		this.id = id;
-
-		function createGunObject(){
-			var size = {
-				width: 0.2,
-				height: 0.2,
-				length: 2.0
-			};
-			return O3DTemplate.createBox(size.width, size.height, size.length, new THREE.MeshLambertMaterial({color:0x34f903}), true, 0.9, 0.0, 1);
-		}
-
-		this.object3d = createGunObject();
-
-		this.mounterPoint = new Vector3(0.0, 0.0, 1.0)
+		this.data = data;
 	};
 
 	UTIL.inherits(GunModel, Model);
