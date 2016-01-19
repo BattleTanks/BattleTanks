@@ -20,35 +20,73 @@ function test(){
 	};
 	init();
 
-	// 1. generate model
-	var floor = new FloorModel("plane floor");
-	var gun = new GunModel("a gun");
-	var turret = new TurretModel("a turret");
+	// define data
+	var stageData = {
+		id : "test stage",
+		type : "stage",
+		object3d : null,
+		mounter : {
+			point : new Three.Vector3(0, 0, 0)
+		},
+		mount : {
+			tank : {
+				type : "turret",
+				point : new Three.Vector3(0, 1, 0)
+			}
+		}
+	};
+	
+	var gunData = {
+		id : "",
+		type : "gun",
+		object3d : null,
+		mounter : {
+			point : new Three.Vector3()
+		}
+	};
 
-	// 2. position object
-	floor.object3d.translateY(-1);
-	turret.mountGun(gun);
+	var turretData = {
+		id : "",
+		type : "turret",
+		object3d : null,
+		mounter : {
+			point : new Three.Vector3(),
+		},
+	 	mount : {
+			gun : {
+				type : "gun",
+				point : new Three.Vector3(),
+				rotation : {
+					axis : new Three.Vector3(),
+					range : new Range(0, 0),
+					bounce : 0.0
+				},
+				constraint : null
+			}
+		}
+	};
 
-	// 3. add object to scene
-	scene.add(floor.object3d);
-	scene.add(gun.object3d);
-	scene.add(turret.object3d);
+	// generate model
+	var root = new RootModel();
+	var stage = new StageModel(stageData);
+	var gun = new GunModel(gunData);
+	var turret = new TurretModel(turretData);
+	
+	rootModel.add(stage);
+	stage.add(turret);
+	turret.add(gun);
 
-	// 4. bind constraints
-	turret.gunConstraint = ConstraintTemplate.createHingeConstraint(scene, gun.object3d, turret.mountPoint, turret.rotationAxis, turret.rotationRange, turret.rotationBounce, turret.object3d);
+	// add object to scene
+	rootModel.traverse(function(model){
+		if(UTIL.isUndefined(model.addToScene)) return;
+		model.addToScene(scene);
+	});
 
-	// 5. add graphicalmesh to physimesh
-
-	// 6. insert actions to action tabel
-	var pressAimUp         = function(){ turret.controller.aimUpButton.down(); };
-	var releaseAimUp       = function(){ turret.controller.aimUpButton.up(); };
-	var pressAimDown       = function(){ turret.controller.aimDownButton.down(); };
-	var releaseAimDown     = function(){ turret.controller.aimDownButton.up(); };
-
-	actions.insertKeyDownAction(pressAimUp, "I");
-	actions.insertKeyUpAction(releaseAimUp, "I");
-	actions.insertKeyDownAction(pressAimDown, "K");
-	actions.insertKeyUpAction(releaseAimDown, "K");
+	// insert action
+	rootModel.traverse(function(model){
+		if(UTIL.isUndefined(model.insertAction)) return;
+		model.insertAction(actions);
+	});
 
 	// 7. setup actions
 	inputman.setActionTable(actions);

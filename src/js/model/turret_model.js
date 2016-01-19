@@ -1,3 +1,24 @@
+MountModelData = {
+	id : "",
+	type : "",
+	object3d : null,
+	mounter : {
+		point : new THREE.Vector3()
+	},
+	mount : {
+		mount1 : {
+			type : "",
+			point : new THREE.Vector3(),
+			rotation : {
+				axis : new THREE.Vector3(),
+				range : new Range(),
+				bounce : 0.0
+			},
+			constraint : null
+		}
+	}
+}
+
 TurretData = {
 	id : "",
 	type : "turret",
@@ -7,7 +28,7 @@ TurretData = {
 	},
  	mount : {
 		gun : {
-			type : GunModel,
+			type : "gun",
 			point : new Three.Vector3(),
 			rotation : {
 				axis : new Three.Vector3(),
@@ -15,15 +36,17 @@ TurretData = {
 				bounce : 0.0
 			},
 			constraint : null
+		},
+		gun2 : {
+			//
 		}
 	}
 };
 
 TurretModel = (function(){
 	TurretModel = function(data){
-		Model.call(this);
+		Model.call(this, data);
 		
-		this.data = data;
 		this.controller = {
 			aimUpButton : new MomentaryButton(),
 			aimDownButton : new MomentaryButton()
@@ -35,30 +58,50 @@ TurretModel = (function(){
 	proto = TurretModel.prototype;
 
 	proto.mount = function(mount){
-		for(var child = this.children.first(); child; this.children.next()){
-			if(child instanceof mount.type) PointTemplate.mount(child.data.object3d, this.data.object3d, child.data.mounter.point, mount.point);
+		var target = this.findChild(function(child){ return child.data.type == mount.type; });
+		if(target === null) return;
+		PointTemplate.mount(target.data.object3d, this.data.object3d, target.data.mounter.point, mount.point);
+	};
+	
+	proto.mountAll = function(){
+		for(var mountId in this.data.mount){
+			this.mount(this.data.mount[mountId]);
+		}
+	};
+
+	proto.constrain = function(scene, mount){
+		var target = this.findChild(function(child){ return child.data.type == mount.type; });
+		if(target === null) return;
+		
+		var children = this.data.object3d.children;	// save children before constraining
+		
+		mount.constraint = ConstraintTemplate.createHingeConstraint(scene, target.data.object3d, mount.point, mount.rotation.axis, mount.rotation.range, mount.rotation.bounce, this.data.object3d);
+		
+		// restore children
+		for(var i = 0; i < children.length; ++i){
+			this.data.object3d.add(children[i]);
+		}
+	};
+	
+	proto.constarinAll = function(scene){
+		for(var mountId in this.data.mount){
+			this.constrain(scene, this.data.mount[mountId]);
 		}
 	};
 
 	proto.addToScene = function(scene){
 		// mount
-		for(var mount in this.data.mount){
-			this.mount(this.data.mount[mountId]);
-		}
+		this.mountAll();
 		
 		// add to scene
-		for(var child = this.children.first(); child; this.children.next()){
-			child.addToScene(scene);
-		}
+		scene.add(this.data.object3d);
 		
 		// constrain
-		for(var mount in this.data.mount){
-			mount.constraint = for(var )
-		}
+		this.constrainAll(scene);
+	};
+
+	proto.insertAction = function(actionTable){
 		
-		for(var child = this.children.frist(); child; this.children.next()){
-			child.constraint();
-		}
 	}
 
 	proto.rotateGunUp = function(){
@@ -73,7 +116,7 @@ TurretModel = (function(){
 		this.gunConstraint.enableAngularMotor(-2, 10);
 	};
 
-	proto._update = function(){
+	proto._update = function(dt){
 		if(this.controller.aimUpButton.isOn()){ this.rotateGunUp(); }
 		else if(this.controller.aimDownButton.isOn()){ this.rotateGunDown(); }
 		else this.stopGunRotation();
