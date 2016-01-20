@@ -1,25 +1,14 @@
-GunData = {
-	id : "",
-	type : "gun",
-	object3d : null,
-	mounter : {
-		point : new Three.Vector3(),
-	}
-};
-
 GunModel = (function(){
-	var Vector3 = THREE.Vector3;
-
 	GunModel = function(data){
-		Model.call(this, data);
+		MountModel.call(this, data);
 	};
 
-	UTIL.inherits(GunModel, Model);
+	UTIL.inherits(GunModel, MountModel);
 
 	proto = GunModel.prototype;
 
 	proto._update = function(dt){
-		return
+		return;
 	};
 
 	return GunModel;

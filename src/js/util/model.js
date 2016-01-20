@@ -45,6 +45,77 @@ Model = (function(){
 	return Model;
 })();
 
+MountModel = (function(){
+	MountModel = function(data){
+		Model.call(this, data);
+	};
+	
+	UTIL.inherits(MountModel, Model);
+	
+	proto = MountModel.prototype;
+	
+	proto.mount = function(mount){
+		var target = this.findChild(function(child){ return child.data.type == mount.type; });
+		if(target === null) return;
+		PointTemplate.mount(target.data.object3d, this.data.object3d, target.data.mounter.point, mount.point);
+	};
+	
+	proto.mountChildren = function(){
+		for(var mountId in this.data.mount){
+			this.mount(this.data.mount[mountId]);
+		}
+	};
+	
+	proto.addToScene = function(scene){
+		scene.add(this.data.object3d);
+	}
+	
+	return MountModel;
+})();
+
+ConstraintModel = (function(){
+	ConstraintModel = function(data){
+		MountModel.call(this, data);
+	};
+	
+	UTIL.inherits(ConstraintModel, MountModel);
+	
+	proto = ConstraintModel.prototype;
+
+	proto.constrain = function(scene, mount){
+		var target = this.findChild(function(child){ return child.data.type == mount.type; });
+		if(target === null) return;
+		
+		var children = this.data.object3d.children;	// save children before constraining
+		
+		mount.constraint = ConstraintTemplate.createHingeConstraint(
+								scene,
+								target.data.object3d,
+								mount.point.add(this.data.object3d.position),
+								mount.rotation.axis,
+								mount.rotation.range,
+								mount.rotation.bounce,
+								this.data.object3d);
+		
+		// restore children
+		for(var i = 0; i < children.length; ++i){
+			this.data.object3d.add(children[i]);
+		}
+	};
+	
+	proto.constrainChildren = function(scene){
+		for(var mountId in this.data.mount){
+			this.constrain(scene, this.data.mount[mountId]);
+		}
+	};
+
+	proto.addToScene = function(scene){
+		scene.add(this.data.object3d);
+	};
+	
+	return ConstraintModel;
+})();
+
 RootModel = (function(){
 	RootModel = function(){
 		data = {};
@@ -53,6 +124,12 @@ RootModel = (function(){
 	};
 	
 	UTIL.inherits(RootModel, Model);
+
+	proto = RootModel.prototype;
+	
+	proto._update = function(dt){
+		return;
+	};
 
 	return RootModel;
 })();
