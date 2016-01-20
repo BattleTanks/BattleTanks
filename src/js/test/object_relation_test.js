@@ -25,7 +25,7 @@ function test(){
 	init();
 	
 	var objDir = "/BattleTanks/src/obj/";
-	var objSources = [objDir+"test.obj", objDir+"terrain.obj"];
+	var objSources = [objDir+"tank_body.obj"];
 	
 	var textureDir = "/BattleTanks/src/texture/";
 	var textureSources = [textureDir+"test_tex.png"];
@@ -39,27 +39,14 @@ function test(){
 	var whenAllObjLoaded = function(){
 		console.log("all obj loaded");
 		for(var src in assetman.loadedObj){
-			console.log("adding " + src);
+			console.log("adding " + src, assetman.loadedObj[src]);
 			scene.add(assetman.loadedObj[src]);
 		}
 		
+		scene.add(O3DTemplate.createFloor(60, 60, new THREE.MeshLambertMaterial({color:0x88dd99}), true, 0.9, 1.0, 0));
+		
 		update();
-	};
-	
-	var whenAllTextureLoaded = function(){
-		console.log("all texture loaded");
-		for(var src in assetman.loadedTexture){
-			console.log("texturing " + src);
-			assetman.loadedObj[objDir+"test.obj"].traverse(
-				function(object){
-					if(object instanceof THREE.Mesh){
-						object.material = new THREE.MeshLambertMaterial({map:assetman.loadedTexture[textureDir + "test_tex.png"]});
-					}
-				}
-			);
-		}
 	};
 
 	assetman.loadObjs(objSources, whenAllObjLoaded);
-	assetman.loadTextures(textureSources, whenAllTextureLoaded);
 }
