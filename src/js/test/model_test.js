@@ -24,10 +24,19 @@ function test(){
 
 	var stageObj = O3DTemplate.createFloor(60, 60, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true}), true, 0.9, 1.0, 0);
 	stageObj.add(O3DTemplate.createFloor(60, 60, new THREE.MeshLambertMaterial({color:0x88dd99})));
+	
 	var gunObj = O3DTemplate.createBox(0.2, 0.2, 2.0, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true}), true, 0.9, 0.0, 1);
+	var muzzlePhysBox = O3DTemplate.createBox(0.25, 0.25, 0.3, new THREE.MeshLambertMaterial({color:0xffffff, wireframe:true}), true, 0.9, 0.0, 1);
+	muzzlePhysBox.add(O3DTemplate.createBox(0.25, 0.25, 0.3, new THREE.MeshLambertMaterial({color:0xdd349f})));
+	gunObj.add(muzzlePhysBox.translateZ(-1.15));
 	gunObj.add(O3DTemplate.createBox(0.2, 0.2, 2.0, new THREE.MeshLambertMaterial({color:0x34f903})));
+	
 	var turretObj = O3DTemplate.createBox(1.0, 1.0, 1.0, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true}), true, 0.9, 0.0, 20);
 	turretObj.add(O3DTemplate.createBox(1.0, 1.0, 1.0, new THREE.MeshLambertMaterial({color:0x03349f})));
+	
+	var bodyObj = O3DTemplate.createBox(1.0, 0.5, 2.0, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true}), true, 0.9, 0.0, 100);
+	bodyObj.add(O3DTemplate.createBox(1.0, 0.5, 2.0, new THREE.MeshLambertMaterial({color:0x03349f})));
+	
 	
 	// define data
 	var stageData = {
@@ -39,7 +48,7 @@ function test(){
 		},
 		mount : {
 			tank : {
-				type : "turret",
+				type : "tank_body",
 				point : new Vector3(0, 1, 0)
 			}
 		}
@@ -74,19 +83,40 @@ function test(){
 			}
 		}
 	};
+	
+	var bodyData = {
+		id : "test body",
+		type : "tank_body",
+		object3d : bodyObj,
+		mount : {
+			turret : {
+				type : "turret",
+				point : new Vector3(0.0, 0.25, -0.7),
+				rotation : {
+					axis : new Vector3(0.0, 1.0, 0.0),
+					range : new Range(0, 2*Math.PI),
+					bounce : 0.0
+				},
+				constraint : null
+			}
+		}
+	};
 
 	// generate model
 	var root = new RootModel();
 	var stage = new StageModel(stageData);
-	var gun = new GunModel(gunData);
+	var body = new TankBodyModel(bodyData);
 	var turret = new TurretModel(turretData);
+	var gun = new GunModel(gunData);
 	
 	root.add(stage);
-	stage.add(turret);
+	stage.add(body);
+	body.add(turret);
 	turret.add(gun);
 
 	// mount
 	root.traverse(function(model){
+		console.log("hello " + model.data.id);
 		if(UTIL.isUndefined(model.mountChildren)) return;
 		model.mountChildren();
 	});

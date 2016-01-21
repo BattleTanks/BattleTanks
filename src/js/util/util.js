@@ -423,3 +423,8 @@ UTIL.include = function(src){
 	document.getElementsByTagName("head")[0].appendChild(fileref);
 	console.log(this.loadedFiles);
 };
+UTIL.isJSONString = function(text){
+	try{ JSON.parse(text); }
+	catch(e){ return false; }
+	return true;
+}

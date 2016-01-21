@@ -12,10 +12,6 @@ TurretModel = (function(){
 
 	proto = TurretModel.prototype;
 
-	proto.insertAction = function(actionTable){
-		
-	}
-
 	proto.rotateGunUp = function(){
 		this.data.mount.gun.constraint.enableAngularMotor(2, 10);
 	};

@@ -47,6 +47,12 @@ Model = (function(){
 
 MountModel = (function(){
 	MountModel = function(data){
+		if(UTIL.isUndefined(data.mounter)){
+			data.mounter = {
+				point : new THREE.Vector3(0, 0, 0)
+			};
+		}
+		
 		Model.call(this, data);
 	};
 	
@@ -56,7 +62,10 @@ MountModel = (function(){
 	
 	proto.mount = function(mount){
 		var target = this.findChild(function(child){ return child.data.type == mount.type; });
-		if(target === null) return;
+		if(target === null){
+			BROUSER.log(mount.type + " not found in " + this.data.id);
+			return;
+		}
 		PointTemplate.mount(target.data.object3d, this.data.object3d, target.data.mounter.point, mount.point);
 	};
 	
@@ -75,6 +84,10 @@ MountModel = (function(){
 
 ConstraintModel = (function(){
 	ConstraintModel = function(data){
+		if(UTIL.isUndefined(data.mount)){
+			data.mount = {};
+		}
+		
 		MountModel.call(this, data);
 	};
 	
@@ -91,7 +104,7 @@ ConstraintModel = (function(){
 		mount.constraint = ConstraintTemplate.createHingeConstraint(
 								scene,
 								target.data.object3d,
-								mount.point.add(this.data.object3d.position),
+								(new THREE.Vector3()).addVectors(mount.point, this.data.object3d.position),
 								mount.rotation.axis,
 								mount.rotation.range,
 								mount.rotation.bounce,
