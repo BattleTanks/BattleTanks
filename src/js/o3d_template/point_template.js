@@ -15,6 +15,20 @@ _PointTemplate = (function(){
 
 	proto = _PointTemplate.prototype;
 
+	proto.getCenterOfMesh = function(mesh){
+		var positions = mesh.geometry.attributes.position.array;
+		var totalVerts = positions.length/3;
+		var sumX = 0;
+		var sumY = 0;
+		var sumZ = 0;
+		for(var i = 0; i < positions.length; i+=3){
+			sumX += positions[i];
+			sumY += positions[i+1];
+			sumZ += positions[i+2];
+		}
+		return new THREE.Vector3(sumX/totalVerts, sumY/totalVerts, sumZ/totalVerts);
+	};
+
 	proto.getWorldPoint = function(object, objectLocalPoint){
 		return (new Vector3()).addVectors(object.position, objectLocalPoint);
 	};
