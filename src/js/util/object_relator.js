@@ -52,8 +52,8 @@ ObjectRelator = (function(){
 		for(var meshName in meshDatas){
 			var meshData = meshDatas[meshName];
 			if(meshData.parent == "root") continue;
-			if(meshData.type == "mounter-point") continue;
-			if(meshData.type == "mount-point") continue;
+			if(meshData.type == "mounterPoint") continue;
+			if(meshData.type == "mountPoint") continue;
 			
 			var parent = meshDatas[meshData.parent];
 			parent.mesh.add(meshData.mesh);
@@ -61,30 +61,9 @@ ObjectRelator = (function(){
 	};
 	
 	proto.createDataFromMeshDatas = function(meshDatas){
-		for(var meshName in meshDatas){
-			var data = {};
-			var meshData = meshDatas[meshName];
-			if(meshData.type == "mounter-point"){
-				var mounterPoint = PointTemplate.getCenterOfMesh(meshData.mesh);
-				mounterData.point = mounterPoint;
-				data.mounter = mounterData;
-			}
-			else if(meshData.type == "mount-point"){
-				mountData.type = meshData.mountType;
-				mountData.point = PointTemplate.getCenterOfMesh(meshData.mesh);
-				data.mount[meshData.name] = mountData;
-			}
-			else if(meshData.parent == "root"){
-				data.object3d = meshData.mesh;
-			}
-		}
-		
-		return data;
-	};
-	
-	proto.createData = function(object){
 		var errorObject = O3DTemplate.createBox(1.0, 1.0, 1.0, new THREE.MeshLambertMaterial({color:0xff0000}));
 		var data = {
+			modelType : undefined,
 			object3d : errorObject,
 			mounter : undefined,
 			mount : undefined
@@ -103,6 +82,30 @@ ObjectRelator = (function(){
 			constraint : null
 		};
 		
+		for(var meshName in meshDatas){
+			var meshData = meshDatas[meshName];
+			if(meshData.type == "mounterPoint"){
+				var mounterPoint = PointTemplate.getCenterOfMesh(meshData.mesh);
+				mounterData.point = mounterPoint;
+				data.mounter = mounterData;
+			}
+			else if(meshData.type == "mountPoint"){
+				if(UTIL.isUndefined(data.mount)) data.mount = {};
+				mountData.type = meshData.mountType;
+				mountData.point = PointTemplate.getCenterOfMesh(meshData.mesh);
+				mountData.rotation = meshData.rotation;
+				data.mount[meshData.name] = mountData;
+			}
+			else if(meshData.parent == "root"){
+				data.modelType = meshData.modelType;
+				data.object3d = meshData.mesh;
+			}
+		}
+		
+		return data;
+	};
+	
+	proto.createData = function(object){
 		// 1. separate meshes from object
 		var meshes = this.separateMeshes(object);
 
@@ -116,7 +119,7 @@ ObjectRelator = (function(){
 		this.setupRelations(meshDatas);
 		
 		// 5. create data
-		data = this.createDataFromMeshDatas(meshDatas);
+		var data = this.createDataFromMeshDatas(meshDatas);
 		
 		return data;
 	};
