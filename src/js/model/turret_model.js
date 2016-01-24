@@ -13,15 +13,15 @@ TurretModel = (function(){
 	proto = TurretModel.prototype;
 
 	proto.rotateGunUp = function(){
-		this.data.mount.gun.constraint.enableAngularMotor(2, 10);
+		this.data.mount.mainGun.constraint.enableAngularMotor(2, 10);
 	};
 	
 	proto.stopGunRotation = function(){
-		this.data.mount.gun.constraint.enableAngularMotor(0, 10);
+		this.data.mount.mainGun.constraint.enableAngularMotor(0, 10);
 	};
 	
 	proto.rotateGunDown = function(){
-		this.data.mount.gun.constraint.enableAngularMotor(-2, 10);
+		this.data.mount.mainGun.constraint.enableAngularMotor(-2, 10);
 	};
 
 	proto.insertAction = function(actions, inputButton){

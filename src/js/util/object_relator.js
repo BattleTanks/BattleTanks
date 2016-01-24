@@ -65,43 +65,34 @@ ObjectRelator = (function(){
 		var data = {
 			modelType : undefined,
 			object3d : errorObject,
-			mounter : undefined,
+			mounter : {
+				point : new THREE.Vector3(0, 0, 0)
+			},
 			mount : undefined
 		};
-		var mounterData = {
-			point : null
-		};
-		var mountData = {
-			type : null,
-			point : null,
-			rotation : {
-				axis : null,
-				range : null,
-				bounce : null
-			},
-			constraint : null
-		};
+		var mountData = {};
 		
 		for(var meshName in meshDatas){
 			var meshData = meshDatas[meshName];
 			if(meshData.type == "mounterPoint"){
-				var mounterPoint = PointTemplate.getCenterOfMesh(meshData.mesh);
-				mounterData.point = mounterPoint;
-				data.mounter = mounterData;
+				data.mounter.point = PointTemplate.getCenterOfMesh(meshData.mesh);
 			}
 			else if(meshData.type == "mountPoint"){
 				if(UTIL.isUndefined(data.mount)) data.mount = {};
 				mountData.type = meshData.mountType;
 				mountData.point = PointTemplate.getCenterOfMesh(meshData.mesh);
 				mountData.rotation = meshData.rotation;
-				data.mount[meshData.name] = mountData;
+				data.mount[meshData.name] = {};
+				data.mount[meshData.name].type = mountData.type;
+				data.mount[meshData.name].point = mountData.point;
+				data.mount[meshData.name].rotation = mountData.rotation;
 			}
 			else if(meshData.parent == "root"){
 				data.modelType = meshData.modelType;
 				data.object3d = meshData.mesh;
 			}
 		}
-		
+		console.log("fresh data ", data);
 		return data;
 	};
 	

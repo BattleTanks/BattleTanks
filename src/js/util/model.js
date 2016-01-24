@@ -18,7 +18,7 @@ Model = (function(){
 	};
 
 	proto.findChild = function(searchBy){
-		for(var child = this.children.first(); child; this.children.next()){
+		for(var child = this.children.first(); child; child = this.children.next()){
 			if(searchBy(child)) return child;
 		}
 		return null;
@@ -66,11 +66,13 @@ MountModel = (function(){
 			BROUSER.log(mount.type + " not found in " + this.data.id);
 			return;
 		}
+		console.log("target", target);
 		PointTemplate.mount(target.data.object3d, this.data.object3d, target.data.mounter.point, mount.point);
 	};
 	
 	proto.mountChildren = function(){
 		for(var mountId in this.data.mount){
+			console.log("mountid ", mountId, this.data.mount[mountId]);
 			this.mount(this.data.mount[mountId]);
 		}
 	};
