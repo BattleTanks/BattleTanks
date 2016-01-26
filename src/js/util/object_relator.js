@@ -20,6 +20,7 @@ ObjectRelator = (function(){
 		function sliceOfSuffix(name){ return meshRawName.slice(0, meshRawName.indexOf("_")); }
 		var name = sliceOfSuffix(meshRawName);
 		
+		console.log("mesh name =", name);
 		return this.meshLibrary[name];
 	};
 	

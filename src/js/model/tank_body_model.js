@@ -9,7 +9,7 @@ TankBodyModel = (function(){
 			runLeftWheelButton : new MomentaryButton(),
 			reverseRightWheelButton : new MomentaryButton(),
 			reverseLeftWheelButton : new MomentaryButton()
-		}
+		};
 	};
 
 	UTIL.inherits(TankBodyModel, ConstraintModel);
@@ -100,6 +100,6 @@ TankBodyModel = (function(){
 		else if(this.controller.reverseLeftWheelButton.isOn()){ this.reverseLeftWheel(); }
 		else this.stopLeftWheel();
 	};
-
+	
 	return TankBodyModel;
 })();

@@ -1,5 +1,5 @@
 function test(){
-	var scene, graphics, camera, element, assetman, inputman, actions;;
+	var scene, graphics, camera, element, assetman, inputman, actions, time;
 	var init = function(){
 		element = BROUSER.getElementById("viewport");
 		graphics = new Graphics({shadow:true, domelement:element, renderWidth:element.clientWidth, renderHeight:element.clientHeight });
@@ -21,8 +21,12 @@ function test(){
 		actions = new ActionTable();
 		
 		assetman = new AssetManager();
+		
+		time = new Time();
 	};
 	init();
+	
+	var showPhysiMesh = false;
 	
 	// tank_test mesh
 	var tankBodyMeshLibrary = {
@@ -33,10 +37,10 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "box",
-			visible : true,
+			visible : showPhysiMesh,
 			friction : 1.0,
 			restitution : 0,
-			mass : 100
+			mass : 500
 		},
 		bodyMesh : {
 			modelType : "tankBody",
@@ -113,7 +117,7 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "box",
-			visible : true,
+			visible : showPhysiMesh,
 			friction : 1.0,
 			restitution : 0,
 			mass : 10
@@ -139,7 +143,7 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "box",
-			visible : true,
+			visible : showPhysiMesh,
 			friction : 1.0,
 			restitution : 0,
 			mass : 50
@@ -184,7 +188,7 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "sphere",
-			visible  : true,
+			visible  : showPhysiMesh,
 			friction : 1.0,
 			restitution : 0.1,
 			mass : 10
@@ -210,7 +214,7 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "sphere",
-			visible  : true,
+			visible  : showPhysiMesh,
 			friction : 1.0,
 			restitution : 0.1,
 			mass : 10
@@ -236,7 +240,7 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "sphere",
-			visible  : true,
+			visible  : showPhysiMesh,
 			friction : 1.0,
 			restitution : 0.1,
 			mass : 10
@@ -262,7 +266,7 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "sphere",
-			visible  : true,
+			visible  : showPhysiMesh,
 			friction : 1.0,
 			restitution : 0.1,
 			mass : 10
@@ -283,15 +287,22 @@ function test(){
 		// stage
 		basePhysiMesh : {
 			modelType : "stage",
-			name : "basePhysiMesh",
+			name : "basePhysiMesh", 
 			parent : "root",
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "box",
-			visible : true,
-			friction : 0.7,
+			visible : showPhysiMesh,
+			friction : 1.0,
 			restitution : 0.1,
 			mass : 0
+		},
+		baseMesh : {
+			modelType : "stage",
+			name : "baseMesh",
+			parent : "basePhysiMesh",
+			type : "mesh",
+			physics : false
 		},
 		tankSpawnPoint : {
 			modelType : "stage",
@@ -307,8 +318,8 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "convex",
-			visible : true,
-			friction : 0.7,
+			visible : showPhysiMesh,
+			friction : 1.0,
 			restitution : 0.1,
 			mass : 0
 		},
@@ -326,8 +337,8 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "convex",
-			visible : true,
-			friction : 0.7,
+			visible : showPhysiMesh,
+			friction : 1.0,
 			restitution : 0.1,
 			mass : 0
 		},
@@ -345,11 +356,114 @@ function test(){
 			type : "physiMesh",
 			physics : true,
 			physicsMeshType : "convex",
-			visible : true,
-			friction : 0.7,
+			visible : showPhysiMesh,
+			friction : 1.0,
 			restitution : 0.1,
 			mass : 0
 		},
+		building3Mesh : {
+			modelType : "stage",
+			name : "building3Mesh",
+			parent : "building3PhysiMesh",
+			type : "mesh",
+			physics : false
+		},
+		building4PhysiMesh : {
+			modelType : "stage",
+			name : "building4PhysiMesh",
+			parent : "basePhysiMesh",
+			type : "physiMesh",
+			physics : true,
+			physicsMeshType : "convex",
+			visible : showPhysiMesh,
+			friction : 1.0,
+			restitution : 0.1,
+			mass : 0
+		},
+		building4Mesh : {
+			modelType : "stage",
+			name : "building4Mesh",
+			parent : "building4PhysiMesh",
+			type : "mesh",
+			physics : false
+		},
+		// wall
+		wall1PhysiMesh : {
+			modelType : "stage",
+			name : "wall1PhysiMesh",
+			parent : "basePhysiMesh",
+			type : "physiMesh",
+			physics : true,
+			physicsMeshType : "convex",
+			visible : showPhysiMesh,
+			friction : 1.0,
+			restitution : 0.1,
+			mass : 0
+		},
+		wall1Mesh : {
+			modelType : "stage",
+			name : "wall1Mesh",
+			parent : "wall1PhysiMesh",
+			type : "mesh",
+			physics : false
+		},
+		wall2PhysiMesh : {
+			modelType : "stage",
+			name : "wall2PhysiMesh",
+			parent : "basePhysiMesh",
+			type : "physiMesh",
+			physics : true,
+			physicsMeshType : "convex",
+			visible : showPhysiMesh,
+			friction : 1.0,
+			restitution : 0.1,
+			mass : 0
+		},
+		wall2Mesh : {
+			modelType : "stage",
+			name : "wall2Mesh",
+			parent : "wall2PhysiMesh",
+			type : "mesh",
+			physics : false
+		},
+		wall3PhysiMesh : {
+			modelType : "stage",
+			name : "wall3PhysiMesh",
+			parent : "basePhysiMesh",
+			type : "physiMesh",
+			physics : true,
+			physicsMeshType : "convex",
+			visible : showPhysiMesh,
+			friction : 1.0,
+			restitution : 0.1,
+			mass : 0
+		},
+		wall3Mesh : {
+			modelType : "stage",
+			name : "wall3Mesh",
+			parent : "wall3PhysiMesh",
+			type : "mesh",
+			physics : false
+		},
+		wall4PhysiMesh : {
+			modelType : "stage",
+			name : "wall4PhysiMesh",
+			parent : "basePhysiMesh",
+			type : "physiMesh",
+			physics : true,
+			physicsMeshType : "convex",
+			visible : showPhysiMesh,
+			friction : 1.0,
+			restitution : 0.1,
+			mass : 0
+		},
+		wall4Mesh : {
+			modelType : "stage",
+			name : "wall4Mesh",
+			parent : "wall4PhysiMesh",
+			type : "mesh",
+			physics : false
+		}
 	};
 	
 	// model data
@@ -367,7 +481,9 @@ function test(){
 	
 	var gunData = {
 		id : "test gun",
-		type : "gun"
+		type : "gun",
+		sound : "/BattleTanks/src/sound/shot.mp3",
+		reloadSpeed : time.secToMSec(6)
 	};
 
 	var turretData = {
@@ -394,19 +510,19 @@ function test(){
 			},
 			frontRightWheel : {
 				type : "frontRightWheel",
-				motorSpeed : 10
+				motorSpeed : 20
 			},
 			frontLeftWheel : {
 				type : "frontLeftWheel",
-				motorSpeed : 10
+				motorSpeed : 20
 			},
 			backRightWheel : {
 				type : "backRightWheel",
-				motorSpeed : 10
+				motorSpeed : 20
 			},
 			backLeftWheel : {
 				type : "backLeftWheel",
-				motorSpeed : 10
+				motorSpeed : 20
 			}
 		}
 	};
@@ -476,6 +592,7 @@ function test(){
 	
 	var whenAllObjLoaded = function(){
 		var datas = {};
+		console.log(assetman.loadedObj);
 		for(var src in assetman.loadedObj){
 			datas[src] = objRelator.createData(assetman.loadedObj[src]);
 		}
@@ -526,7 +643,7 @@ function test(){
 			if(UTIL.isUndefined(model.addToScene)) return;
 			model.addToScene(scene);
 		});
-		scene.add(O3DTemplate.createAxes(0, 1, 0, 5));
+		//scene.add(O3DTemplate.createAxes(0, 1, 0, 5));
 		
 		// constrain
 		root.traverse(function(model){
@@ -547,7 +664,7 @@ function test(){
 		setupCamera(turret);
 		
 		var update = function(){
-			root.update();
+			root.update(time.update());
 			graphics.render(scene, camera);
 			requestAnimationFrame( update );
 		};
