@@ -3,11 +3,25 @@ BattleTanks = (function(){
 		Application.call(this);
 		
 		this._previousState = undefined;
-		this._state = new LaunchState();
 		
-		this.graphics = new Graphics({domelement:domelement, renderWidth:domelement.clientWidth, renderHeight:domelement.clientHeight});
+		this.graphics = new Graphics({
+			shadow:true,
+			domelement:domelement,
+			renderWidth:domelement.clientWidth,
+			renderHeight:domelement.clientHeight
+		});
 		this.graphics.enableShadow();
+		
 		this.actionManager = new InputActionManager();
+		
+		this.states = {
+			"atLaunch" : new BattleTanksLaunchState(this),
+			"atGameStart" : new BattleTanksGameState(this)
+		}
+		
+		this._state = this.states.atLaunch;
+		
+		this.time = new Time();
 	};
 	
 	UTIL.inherits(BattleTanks, Application);
@@ -20,11 +34,11 @@ BattleTanks = (function(){
 	};
 	
 	proto.update = function(){
-		this._state.update();
-	};
-	
-	proto.render = function(){
-		this._state.render();
+		if(this._state.firstTime){
+			this._state.firstThingToDo();
+			this._state.firstTime = false;
+		}
+		this._state.update(this.time.update());
 	};
 	
 	return BattleTanks;

@@ -2,14 +2,15 @@ GunModel = (function(){
 	GunModel = function(data){
 		MountModel.call(this, data);
 		
-		this.fireSound = new Audio(data.sound);
+		this.fireSound = new Audio(data.fireSound);
+		this.reloadSound = new Audio(data.reloadSound);
 		
 		this.controller = {
 			trigger : new MomentaryButton()
 		};
 		
+		this.isLoaded = true;
 		this.reloadTimer = new Timer(data.reloadSpeed);
-		this.reloadTimer.start();
 	};
 
 	UTIL.inherits(GunModel, MountModel);
@@ -19,7 +20,7 @@ GunModel = (function(){
 	proto.fire = function(){
 		console.log("fire!!");
 		this.fireSound.play();
-		this.reloadTimer.restart();
+		this.isLoaded = false;
 	};
 	
 	proto.insertAction = function(actions, inputButton){
@@ -36,9 +37,27 @@ GunModel = (function(){
 		return this.reloadTimer.isTimeup();
 	};
 	
+	proto.reload = function(dt){
+		if(this.reloadTimer.isStoped()){
+			this.reloadTimer.start();
+		}
+		
+		this.reloadTimer.update(dt);
+		
+		if(this.reloadTimer.isTimeup()){
+			console.log("reloaded!!");
+			this.reloadSound.play();
+			this.isLoaded = true;
+			this.reloadTimer.reset();
+		}
+	};
+	
 	proto._update = function(dt){
-		if(this.isReloaded(dt)){
+		if(this.isLoaded){
 			if(this.controller.trigger.isOn()) this.fire();
+		}
+		else{
+			this.reload(dt);
 		}
 	};
 

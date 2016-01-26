@@ -4,7 +4,7 @@ function test(){
 		element = BROUSER.getElementById("viewport");
 		graphics = new Graphics({shadow:true, domelement:element, renderWidth:element.clientWidth, renderHeight:element.clientHeight });
 		graphics.enableShadow();
-		scene = graphics.createScene({physics:true, repoertSize : 30});
+		scene = graphics.createScene({physics:true, reportSize : 30});
 
 		camera = graphics.createCamera({fov : 60});
 		camera.position.set( -10, 10, -10 );
@@ -467,8 +467,6 @@ function test(){
 	};
 	
 	// model data
-	//var stageObj = O3DTemplate.createFloor(60, 60, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true}), true, 0.9, 1.0, 0);
-	//stageObj.add(O3DTemplate.createFloor(60, 60, new THREE.MeshLambertMaterial({color:0x88dd99})));
 	var stageData = {
 		id : "test stage",
 		type : "stage",
@@ -482,7 +480,8 @@ function test(){
 	var gunData = {
 		id : "test gun",
 		type : "gun",
-		sound : "/BattleTanks/src/sound/shot.mp3",
+		fireSound : "/BattleTanks/src/sound/shot.mp3",
+		reloadSound : "/BattleTanks/src/sound/click.mp3",
 		reloadSpeed : time.secToMSec(6)
 	};
 

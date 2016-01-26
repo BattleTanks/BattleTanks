@@ -33,7 +33,7 @@ Object3DTemplate = (function(){
 		material = Physijs.createMaterial(material, friction, restitution);
 		
 		mass = UTIL.optional(0, mass);
-	
+		
 		switch(type){
 			case "box":
 				return new Physijs.BoxMesh(geometry, material, mass);

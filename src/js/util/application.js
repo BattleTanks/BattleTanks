@@ -7,8 +7,6 @@ Application = (function(){
 
 	proto.update = function(){};
 	
-	proto.render = function(){};
-	
 	proto.quit = function(){
 		this._running = false;
 	};

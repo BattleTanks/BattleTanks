@@ -1,7 +1,8 @@
 State = (function(){
 	State = function(owner){
 		this.owner = owner;
-		this.rootModel = new Model();
+		this.firstTime = true;
+		this.rootModel = new RootModel();
 	};
 
 	proto = State.prototype;
@@ -14,21 +15,23 @@ State = (function(){
 		// define method when exiting state
 	};
 
+	proto.firstThingToDo = function(){
+		// define method when entering for the frist time
+	}
+
 	proto._update = function(dt){
 		BROUSER.warn("State._update is not defined!!");
+	};
+
+	proto._render = function(){
+		if(UTIL.isUndefined(this.scene) || UTIL.isUndefined(this.camera)) return;
+		this.owner.graphics.render(this.scene, this.camera);
 	};
 
 	proto.update = function(dt){
 		this._update(dt);
 		this.rootModel.update(dt);
-	};
-
-	proto._render = function(renderer){
-		BROUSER.warn("State._render is not defined!!");
-	}
-
-	proto.render = function(renderer){
-		this._render(renderer);
+		this._render();
 	};
 
 	return State;

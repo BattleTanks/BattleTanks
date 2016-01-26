@@ -53,7 +53,7 @@ function test(){
 			assetman.loadedObj[objDir+"test.obj"].traverse(
 				function(object){
 					if(object instanceof THREE.Mesh){
-						object.material = new THREE.MeshLambertMaterial({map:assetman.loadedTexture[textureDir + "test_tex.png"]});
+						object.material = new THREE.MeshBasicMaterial({map:assetman.loadedTexture[textureDir + "test_tex.png"]});
 					}
 				}
 			);
