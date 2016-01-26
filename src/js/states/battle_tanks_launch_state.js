@@ -71,7 +71,7 @@ BattleTanksLaunchState = (function(){
 		this.gameStartTimer.update(dt);
 		if(this.gameStartTimer.isTimeup()){
 			console.log("next state");
-			this.owner.changeState(this.owner.states.atGameStart);
+			this.owner.changeState(this.owner.states.afterLaunch);
 		}
 	};
 	

@@ -2,6 +2,8 @@ TankBodyModel = (function(){
 	TankBodyModel = function(data){
 		ConstraintModel.call(this, data);
 		
+		this.engineSound = new Audio(data.engineSound);
+		
 		this.controller = {
 			rotateTurretRightButton : new MomentaryButton(),
 			rotateTurretLeftButton : new MomentaryButton(),

@@ -16,6 +16,7 @@ BattleTanks = (function(){
 		
 		this.states = {
 			"atLaunch" : new BattleTanksLaunchState(this),
+			"afterLaunch" : new BattleTanksGameInstructionState(this),
 			"atGameStart" : new BattleTanksGameState(this)
 		}
 		

@@ -87,6 +87,7 @@ BattleTanksGameState = (function(){
 		var bodyData = {
 			id : "test body",
 			type : "tankBody",
+			engineSound : "/BattleTanks/src/sound/engine.mp3",
 			mount : {
 				mainTurret : {
 					type : "turret",
