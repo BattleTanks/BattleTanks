@@ -67,7 +67,7 @@ BattleTanksGameState = (function(){
 			type : "gun",
 			fireSound : "/BattleTanks/src/sound/shot.mp3",
 			reloadSound : "/BattleTanks/src/sound/click.mp3",
-			reloadSpeed : time.secToMSec(4)
+			reloadSpeed : time.secToMSec(2)
 		};
 
 		var turretData = {

@@ -56,7 +56,9 @@ BattleTanksGameInstructionState = (function(){
 		var stateMachine = this.owner;
 		var nextState = this.owner.states.atGameStart;
 		var changeState = function(){
-			(new Audio("/BattleTanks/src/sound/biggun.mp3")).play();
+			var startSound = new Audio("/BattleTanks/src/sound/biggun.mp3");
+			startSound.volume -= 0.5;
+			startSound.play();
 			stateMachine.changeState(nextState);
 		}
 		this.actions.insertKeyDownAction(changeState);

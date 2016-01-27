@@ -3,6 +3,13 @@ TankBodyModel = (function(){
 		ConstraintModel.call(this, data);
 		
 		this.engineSound = new Audio(data.engineSound);
+		this.activeEngineVolume = 0.3;
+		this.idleEngineVolume = 0.1;
+		this.engineSound.volume = this.idleEngineVolume;
+		this.engineSound.addEventListener('ended', function() {
+				this.currentTime = 0;
+				this.play();
+			}, false);
 		
 		this.controller = {
 			rotateTurretRightButton : new MomentaryButton(),
@@ -101,6 +108,15 @@ TankBodyModel = (function(){
 		if(this.controller.runLeftWheelButton.isOn()){ this.rotateLeftWheel(); }
 		else if(this.controller.reverseLeftWheelButton.isOn()){ this.reverseLeftWheel(); }
 		else this.stopLeftWheel();
+		
+		if(this.controller.runRightWheelButton.isOn()
+		|| this.controller.runLeftWheelButton.isOn()
+		|| this.controller.reverseRightWheelButton.isOn()
+		|| this.controller.reverseLeftWheelButton.isOn()){
+			this.engineSound.volume = this.activeEngineVolume;
+		}
+		else this.engineSound.volume = this.idleEngineVolume;
+		//this.engineSound.play();
 	};
 	
 	return TankBodyModel;

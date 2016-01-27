@@ -46,6 +46,7 @@ GunModel = (function(){
 		
 		if(this.reloadTimer.isTimeup()){
 			console.log("reloaded!!");
+			this.fireSound.currentTime = 0;
 			this.reloadSound.play();
 			this.isLoaded = true;
 			this.reloadTimer.reset();
