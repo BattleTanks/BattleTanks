@@ -1,4 +1,4 @@
-var SHOW_PHYSI_MESH = false;
+var SHOW_PHYSI_MESH = true;
 
 // tank_test mesh
 var TEST_WORLD_MESH_LIBRARY = {
